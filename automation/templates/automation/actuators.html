@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+
+<html lang="fa" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>تجهیزات کنترلی | گلخانه هوشمند</title>
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Tahoma, Arial, sans-serif;
+            background: #f4f7f6;
+            color: #263238;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background:
+                linear-gradient(
+                    180deg,
+                    #123d2b,
+                    #091f15
+                );
+            color: white;
+            z-index: 1000;
+        }
+
+        .brand {
+            text-align: center;
+            padding: 27px 15px;
+            border-bottom:
+                1px solid rgba(255,255,255,.1);
+        }
+
+        .brand-icon {
+            width: 58px;
+            height: 58px;
+            margin: auto;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                rgba(255,255,255,.12);
+            font-size: 27px;
+            color: #8ee28e;
+        }
+
+        .brand h2 {
+            margin: 12px 0 5px;
+            font-size: 19px;
+        }
+
+        .brand small {
+            opacity: .55;
+        }
+
+        .menu {
+            padding: 15px 12px;
+        }
+
+        .menu-title {
+            color: rgba(255,255,255,.4);
+            font-size: 10px;
+            padding: 12px 13px 7px;
+        }
+
+        .menu-item {
+            display: flex;
+            gap: 13px;
+            align-items: center;
+            padding: 12px 14px;
+            margin: 4px 0;
+            border-radius: 10px;
+            color: rgba(255,255,255,.72);
+            transition: .2s;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background:
+                rgba(255,255,255,.12);
+            color: white;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-right: 250px;
+        }
+
+        .topbar {
+            height: 70px;
+            background: white;
+            border-bottom:
+                1px solid #e5eae7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+        }
+
+        .title h1 {
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .title p {
+            margin: 5px 0 0;
+            color: #8a9691;
+            font-size: 11px;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0f1e4;
+            color: #277841;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* CONTENT */
+
+        .content {
+            padding: 28px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 23px;
+        }
+
+        .page-header p {
+            color: #899590;
+            font-size: 12px;
+        }
+
+        /* CARDS */
+
+        .actuator-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .actuator-card {
+            background: white;
+            border-radius: 18px;
+            padding: 23px;
+            box-shadow:
+                0 5px 20px rgba(0,0,0,.05);
+            border:
+                1px solid #edf1ef;
+            transition: .2s;
+        }
+
+        .actuator-card:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 10px 28px rgba(0,0,0,.08);
+        }
+
+        .actuator-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .actuator-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 17px;
+            background: #e7f4e9;
+            color: #2b8949;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+        }
+
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+        }
+
+        .status.on {
+            background: #e3f6e7;
+            color: #22833e;
+        }
+
+        .status.off {
+            background: #edf1ef;
+            color: #78837e;
+        }
+
+        .status.offline {
+            background: #fde7e7;
+            color: #d03d3d;
+        }
+
+        .status.error {
+            background: #fff0d9;
+            color: #d67b15;
+        }
+
+        .actuator-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 18px;
+        }
+
+        .actuator-code {
+            color: #929c98;
+            font-size: 10px;
+            margin-top: 5px;
+        }
+
+        .details {
+            margin-top: 18px;
+            border-top:
+                1px solid #edf0ee;
+            padding-top: 15px;
+        }
+
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 11px;
+        }
+
+        .detail span:first-child {
+            color: #8a9590;
+        }
+
+        /* CONTROL */
+
+        .control {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control button {
+            flex: 1;
+            border: none;
+            padding: 11px;
+            border-radius: 10px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .btn-on {
+            background: #e1f4e5;
+            color: #217d3c;
+        }
+
+        .btn-on:hover {
+            background: #ccebd2;
+        }
+
+        .btn-off {
+            background: #f2f4f3;
+            color: #67736d;
+        }
+
+        .btn-off:hover {
+            background: #e5e9e7;
+        }
+
+        .control button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        /* EMPTY */
+
+        .empty {
+            background: white;
+            padding: 70px;
+            border-radius: 18px;
+            text-align: center;
+            color: #899590;
+        }
+
+        .empty i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            color: #b8c4be;
+        }
+
+        @media(max-width:1100px) {
+
+            .actuator-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+        @media(max-width:800px) {
+
+            .sidebar {
+                transform: translateX(100%);
+                transition: .3s;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-right: 0;
+            }
+
+            .mobile-menu {
+                display: block;
+            }
+
+            .content {
+                padding: 18px;
+            }
+
+        }
+
+        @media(min-width:801px) {
+
+            .mobile-menu {
+                display: none;
+            }
+
+        }
+
+        @media(max-width:600px) {
+
+            .actuator-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .user span {
+                display: none;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- SIDEBAR -->
+
+<aside
+    class="sidebar"
+    id="sidebar"
+>
+
+    <div class="brand">
+
+        <div class="brand-icon">
+            <i class="fas fa-leaf"></i>
+        </div>
+
+        <h2>
+            گلخانه هوشمند
+        </h2>
+
+        <small>
+            Smart Greenhouse
+        </small>
+
+    </div>
+
+
+    <nav class="menu">
+
+        <div class="menu-title">
+            مدیریت
+        </div>
+
+
+        <a
+            href="/"
+            class="menu-item"
+        >
+            <i class="fas fa-chart-line"></i>
+            داشبورد
+        </a>
+
+
+        <a
+            href="{% url 'greenhouse:greenhouses' %}"
+            class="menu-item"
+        >
+            <i class="fas fa-warehouse"></i>
+            گلخانه‌ها
+        </a>
+
+
+        <a
+            href="{% url 'greenhouse:zones' %}"
+            class="menu-item"
+        >
+            <i class="fas fa-layer-group"></i>
+            زون‌ها
+        </a>
+
+
+        <div class="menu-title">
+            پایش و کنترل
+        </div>
+
+
+        <a
+            href="{% url 'monitoring:sensors' %}"
+            class="menu-item"
+        >
+            <i class="fas fa-microchip"></i>
+            سنسورها
+        </a>
+
+
+        <a
+            href="{% url 'automation:actuators' %}"
+            class="menu-item active"
+        >
+            <i class="fas fa-fan"></i>
+            تجهیزات کنترلی
+        </a>
+
+
+        <a
+            href="/admin/automation/automationrule/"
+            class="menu-item"
+        >
+            <i class="fas fa-robot"></i>
+            اتوماسیون
+        </a>
+
+
+        <div class="menu-title">
+            سیستم
+        </div>
+
+
+        <a
+            href="/admin/"
+            class="menu-item"
+        >
+            <i class="fas fa-chart-bar"></i>
+            گزارش‌ها
+        </a>
+
+
+        <a
+            href="/admin/"
+            class="menu-item"
+        >
+            <i class="fas fa-bell"></i>
+            هشدارها
+        </a>
+
+
+        <a
+            href="/admin/"
+            class="menu-item"
+        >
+            <i class="fas fa-cog"></i>
+            مدیریت سیستم
+        </a>
+
+    </nav>
+
+</aside>
+
+
+<!-- MAIN -->
+
+<main class="main">
+
+
+    <header class="topbar">
+
+        <div
+            style="
+                display:flex;
+                align-items:center;
+                gap:15px;
+            "
+        >
+
+            <div
+                class="mobile-menu"
+                onclick="toggleSidebar()"
+            >
+
+                <i class="fas fa-bars"></i>
+
+            </div>
+
+
+            <div class="title">
+
+                <h1>
+                    تجهیزات کنترلی
+                </h1>
+
+                <p>
+                    کنترل تجهیزات گلخانه
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="user">
+
+            <div class="avatar">
+                <i class="fas fa-user"></i>
+            </div>
+
+            <span>
+                مدیر سیستم
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <section class="content">
+
+
+        <div class="page-header">
+
+            <h2>
+                تجهیزات کنترلی
+            </h2>
+
+            <p>
+                وضعیت فعلی و کنترل دستی تجهیزات
+            </p>
+
+        </div>
+
+
+        {% if actuators %}
+
+
+        <div class="actuator-grid">
+
+
+            {% for actuator in actuators %}
+
+            <div
+                class="actuator-card"
+                id="actuator-{{ actuator.id }}"
+            >
+
+
+                <div class="actuator-header">
+
+
+                    <div class="actuator-icon">
+
+                        {% if actuator.actuator_type == "fan" %}
+
+                            <i class="fas fa-fan"></i>
+
+                        {% elif actuator.actuator_type == "pump" %}
+
+                            <i class="fas fa-faucet-drip"></i>
+
+                        {% elif actuator.actuator_type == "heater" %}
+
+                            <i class="fas fa-temperature-high"></i>
+
+                        {% elif actuator.actuator_type == "valve" %}
+
+                            <i class="fas fa-sliders"></i>
+
+                        {% elif actuator.actuator_type == "light" %}
+
+                            <i class="fas fa-lightbulb"></i>
+
+                        {% elif actuator.actuator_type == "window" %}
+
+                            <i class="fas fa-window-maximize"></i>
+
+                        {% elif actuator.actuator_type == "cooling" %}
+
+                            <i class="fas fa-snowflake"></i>
+
+                        {% else %}
+
+                            <i class="fas fa-gears"></i>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <span
+                        class="status
+                        {% if actuator.status == 'on' %}
+                            on
+                        {% elif actuator.status == 'offline' %}
+                            offline
+                        {% elif actuator.status == 'error' %}
+                            error
+                        {% else %}
+                            off
+                        {% endif %}"
+                        id="status-{{ actuator.id }}"
+                    >
+
+                        {% if actuator.status == "on" %}
+                            روشن
+                        {% elif actuator.status == "offline" %}
+                            آفلاین
+                        {% elif actuator.status == "error" %}
+                            خطا
+                        {% else %}
+                            خاموش
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <div class="actuator-name">
+
+                    {{ actuator.name }}
+
+                </div>
+
+
+                <div class="actuator-code">
+
+                    {{ actuator.code }}
+
+                </div>
+
+
+                <div class="details">
+
+                    <div class="detail">
+
+                        <span>
+                            نوع تجهیز
+                        </span>
+
+                        <strong>
+                            {{ actuator.get_actuator_type_display }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <span>
+                            گلخانه
+                        </span>
+
+                        <strong>
+                            {{ actuator.zone.greenhouse.name }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="detail">
+
+                        <span>
+                            زون
+                        </span>
+
+                        <strong>
+                            {{ actuator.zone.name }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="control">
+
+                    <button
+                        class="btn-on"
+                        onclick="controlActuator(
+                            {{ actuator.id }},
+                            'on'
+                        )"
+                    >
+
+                        <i class="fas fa-power-off"></i>
+
+                        روشن
+
+                    </button>
+
+
+                    <button
+                        class="btn-off"
+                        onclick="controlActuator(
+                            {{ actuator.id }},
+                            'off'
+                        )"
+                    >
+
+                        <i class="fas fa-stop"></i>
+
+                        خاموش
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="empty">
+
+            <i class="fas fa-fan"></i>
+
+            <h3>
+                هنوز تجهیزی ثبت نشده است
+            </h3>
+
+            <p>
+                ابتدا از قسمت مدیریت سیستم یک تجهیز کنترلی ایجاد کنید.
+            </p>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+</main>
+
+
+<script>
+
+
+function toggleSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList.toggle("open");
+
+}
+
+
+/* CONTROL ACTUATOR */
+
+async function controlActuator(
+    actuatorId,
+    command
+) {
+
+    const result = confirm(
+        command === "on"
+            ? "آیا از روشن کردن این تجهیز مطمئن هستید؟"
+            : "آیا از خاموش کردن این تجهیز مطمئن هستید؟"
+    );
+
+
+    if (!result)
+        return;
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/automation/control/${actuatorId}/`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        status: command
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            alert(
+                data.error ||
+                "خطا در کنترل تجهیز"
+            );
+
+            return;
+
+        }
+
+
+        updateStatus(
+            actuatorId,
+            data.status
+        );
+
+
+    }
+
+    catch(error) {
+
+        console.error(error);
+
+        alert(
+            "ارتباط با سرور برقرار نشد."
+        );
+
+    }
+
+}
+
+
+/* UPDATE STATUS */
+
+function updateStatus(
+    actuatorId,
+    status
+) {
+
+    const element =
+        document.getElementById(
+            `status-${actuatorId}`
+        );
+
+
+    if (!element)
+        return;
+
+
+    element.className =
+        "status";
+
+
+    if (status === "on") {
+
+        element.classList.add("on");
+
+        element.textContent =
+            "روشن";
+
+    }
+
+    else {
+
+        element.classList.add("off");
+
+        element.textContent =
+            "خاموش";
+
+    }
+
+}
+
+</script>
+
+
+</body>
+
+</html>

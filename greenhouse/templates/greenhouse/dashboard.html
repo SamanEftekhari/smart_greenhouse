@@ -1,0 +1,1447 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>داشبورد گلخانه هوشمند</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --forest: #245b43;
+            --forest-dark: #173d30;
+            --leaf: #3d9b67;
+            --mint: #dff4e6;
+            --teal: #13a99b;
+            --teal-soft: #dff8f3;
+            --sun: #f2b84b;
+            --coral: #e87968;
+            --ink: #26372f;
+            --muted: #78877e;
+            --page: #f7f8f1;
+            --white: #fff;
+            --line: #e8ece2;
+            --shadow: 0 9px 28px rgba(41, 74, 49, .07);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(ellipse at 90% 0%, rgba(213, 237, 190, .35), transparent 28rem),
+                var(--page);
+            color: var(--ink);
+            font-family: 'Vazirmatn', Tahoma, sans-serif;
+            font-size: 14px;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        button, input { font-family: inherit; }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 1000;
+            width: 250px;
+            height: 100vh;
+            overflow-y: auto;
+            color: #f4fff6;
+            background: linear-gradient(165deg, #285f46, #173d30 70%, #123126);
+            box-shadow: -8px 0 28px rgba(27, 66, 46, .12);
+            transition: transform .25s ease;
+        }
+
+        .brand {
+            padding: 27px 18px 23px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+        .brand-icon {
+            width: 61px;
+            height: 61px;
+            display: grid;
+            place-items: center;
+            margin: auto;
+            border-radius: 21px;
+            color: #d9f7bb;
+            font-size: 27px;
+            background: linear-gradient(145deg, rgba(198,239,163,.23), rgba(255,255,255,.07));
+            border: 1px solid rgba(255,255,255,.12);
+        }
+
+        .brand h2 {
+            margin: 13px 0 5px;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .brand span {
+            font-size: 11px;
+            color: #c0ddca;
+            direction: ltr;
+            display: block;
+        }
+
+        .menu { padding: 17px 12px; }
+
+        .menu-title {
+            padding: 14px 12px 7px;
+            color: #a8c8b3;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-height: 46px;
+            padding: 11px 13px;
+            margin: 4px 0;
+            border-radius: 12px;
+            color: #d8e8dc;
+            font-size: 12px;
+            transition: .2s;
+        }
+
+        .menu-item i {
+            width: 21px;
+            text-align: center;
+            font-size: 15px;
+            color: #b3d8bf;
+        }
+
+        .menu-item:hover {
+            color: white;
+            background: rgba(255,255,255,.09);
+        }
+
+        .menu-item.active {
+            color: white;
+            background: linear-gradient(100deg, rgba(111,199,127,.28), rgba(111,199,127,.09));
+            box-shadow: inset -3px 0 #a8df87;
+        }
+
+        .menu-item.active i { color: #c6f2a5; }
+
+        /* Main layout */
+        .main {
+            min-width: 0;
+            min-height: 100vh;
+            margin-right: 250px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 900;
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 12px 30px;
+            background: rgba(255,255,255,.94);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(12px);
+        }
+
+        .topbar-start, .top-actions, .user-box {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .page-title h1 {
+            margin: 0;
+            color: var(--forest-dark);
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .page-title p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .mobile-menu {
+            display: none;
+            border: 0;
+            background: transparent;
+            color: var(--forest);
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 14px;
+            background: var(--mint);
+            color: var(--forest);
+        }
+
+        .user-box span {
+            color: #53675a;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .content {
+            width: 100%;
+            max-width: 1750px;
+            margin: auto;
+            padding: 28px;
+        }
+
+        /* Hero banner */
+        .hero {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            aspect-ratio: 1920 / 700;
+            min-height: 280px;
+            margin-bottom: 25px;
+            border-radius: 25px;
+            background: linear-gradient(120deg, #204b37, #4e9360);
+            box-shadow: 0 16px 36px rgba(42, 91, 55, .16);
+        }
+
+        .hero-image {
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(
+                270deg,
+                rgba(20, 54, 36, .91) 0%,
+                rgba(24, 68, 42, .72) 42%,
+                rgba(24, 68, 42, .08) 100%
+            );
+        }
+
+        .hero-content {
+            max-width: 720px;
+            padding: clamp(24px, 4vw, 52px);
+            color: white;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 13px;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 30px;
+            color: #e7ffda;
+            background: rgba(255,255,255,.12);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .hero-content h2 {
+            margin: 17px 0 10px;
+            font-size: clamp(24px, 2.7vw, 38px);
+            font-weight: 800;
+            line-height: 1.7;
+        }
+
+        .hero-content p {
+            max-width: 580px;
+            margin: 0;
+            color: rgba(255,255,255,.88);
+            font-size: 13px;
+            line-height: 2.1;
+        }
+
+        .hero-points {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-top: 18px;
+            color: #f0f8e9;
+            font-size: 11px;
+        }
+
+        .hero-points i { color: #c8f09c; margin-left: 5px; }
+
+        /* Section headings */
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 30px 0 16px;
+        }
+
+        .heading-text {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .heading-icon {
+            display: grid;
+            place-items: center;
+            width: 39px;
+            height: 39px;
+            border-radius: 13px;
+            color: var(--forest);
+            background: #e5f2d8;
+            font-size: 16px;
+        }
+
+        .section-heading h2 {
+            margin: 0;
+            color: var(--forest-dark);
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .section-heading p {
+            margin: 4px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .text-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #258a78;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .text-link:hover { color: var(--forest-dark); }
+
+        /* KPI cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .kpi {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            min-height: 116px;
+            padding: 20px;
+            overflow: hidden;
+            border: 1px solid #e9ecdf;
+            border-radius: 20px;
+            background: white;
+            box-shadow: var(--shadow);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .kpi:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(41,74,49,.12);
+        }
+
+        .kpi::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            left: 0;
+            height: 3px;
+            background: var(--accent, #5aa86b);
+            opacity: .7;
+        }
+
+        .kpi-icon {
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 17px;
+            color: var(--accent, var(--forest));
+            background: var(--tint, var(--mint));
+            font-size: 21px;
+        }
+
+        .kpi-label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .kpi-value {
+            display: block;
+            color: var(--forest-dark);
+            font-size: 29px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .kpi-green { --accent: #378e55; --tint: #e2f4e3; }
+        .kpi-teal { --accent: #12998d; --tint: #dcf7f0; }
+        .kpi-yellow { --accent: #bd872b; --tint: #fff1d5; }
+        .kpi-coral { --accent: #d45d51; --tint: #ffebe5; }
+
+        /* Zone cards */
+        .zone-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .zone-card {
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            border: 1px solid #e7ebdf;
+            border-radius: 19px;
+            background: white;
+            box-shadow: var(--shadow);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .zone-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px rgba(41,74,49,.11);
+        }
+
+        .zone-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(#8dcf76, #27a69a);
+        }
+
+        .zone-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .zone-title {
+            margin: 0;
+            color: var(--forest-dark);
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .zone-greenhouse {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .zone-code {
+            direction: ltr;
+            white-space: nowrap;
+            padding: 6px 9px;
+            border-radius: 9px;
+            color: #28795b;
+            background: #e7f6e8;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .zone-total {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 18px 0 12px;
+            padding: 12px 13px;
+            border-radius: 13px;
+            background: #f7f8f1;
+        }
+
+        .zone-total span { color: var(--muted); font-size: 11px; }
+        .zone-total strong { color: var(--forest-dark); font-size: 23px; font-weight: 800; }
+
+        .zone-statuses {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .zone-status {
+            padding: 9px 5px;
+            text-align: center;
+            border-radius: 11px;
+        }
+
+        .zone-status span {
+            display: block;
+            font-size: 10px;
+        }
+
+        .zone-status strong {
+            display: block;
+            margin-top: 4px;
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .zone-online { color: #278457; background: #e8f7e9; }
+        .zone-offline { color: #b95a49; background: #fff0e9; }
+        .zone-error { color: #b98220; background: #fff5d9; }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 28px;
+            text-align: center;
+            border: 1px dashed #cdd8c8;
+            border-radius: 18px;
+            color: var(--muted);
+            background: rgba(255,255,255,.65);
+        }
+
+        .empty-state i {
+            display: block;
+            margin-bottom: 12px;
+            color: #8cb89a;
+            font-size: 28px;
+        }
+
+        /* Sensor cards */
+        .sensor-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .sensor-card {
+            position: relative;
+            min-width: 0;
+            padding: 20px;
+            overflow: hidden;
+            border: 1px solid #e8ecdf;
+            border-radius: 19px;
+            background: white;
+            box-shadow: var(--shadow);
+            transition: transform .2s, box-shadow .2s;
+        }
+
+        .sensor-card::after {
+            content: "";
+            position: absolute;
+            left: -25px;
+            bottom: -38px;
+            width: 105px;
+            height: 105px;
+            border-radius: 50%;
+            background: var(--sensor-tint, #e2f4e3);
+            opacity: .55;
+        }
+
+        .sensor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 14px 28px rgba(41,74,49,.11);
+        }
+
+        .sensor-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .sensor-icon {
+            display: grid;
+            place-items: center;
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
+            border-radius: 15px;
+            color: var(--sensor-color, #318b5b);
+            background: var(--sensor-tint, #e2f4e3);
+            font-size: 18px;
+        }
+
+        .sensor-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .sensor-status::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-online { color: #287d53; background: #e4f6e7; }
+        .status-offline { color: #b94f45; background: #ffede8; }
+        .status-error { color: #a9781f; background: #fff3d7; }
+
+        .sensor-name {
+            position: relative;
+            z-index: 1;
+            margin-top: 17px;
+            color: #66776a;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .sensor-value {
+            position: relative;
+            z-index: 1;
+            margin-top: 5px;
+            color: var(--forest-dark);
+            font-size: 31px;
+            font-weight: 800;
+            line-height: 1.4;
+            direction: ltr;
+            text-align: right;
+        }
+
+        .sensor-unit {
+            margin-right: 4px;
+            color: #849186;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Chart and equipment panel */
+        .two-columns {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+            gap: 18px;
+            margin-top: 27px;
+        }
+
+        .panel {
+            min-width: 0;
+            padding: 23px;
+            border: 1px solid #e8ecdf;
+            border-radius: 20px;
+            background: white;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid #edf0e7;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            color: var(--forest-dark);
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .panel-header p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .period-label {
+            padding: 7px 10px;
+            border-radius: 10px;
+            color: #287d69;
+            background: #e2f6ed;
+            white-space: nowrap;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .chart-box { position: relative; height: 300px; }
+
+        .equipment-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border-radius: 14px;
+            background: #f5f8ed;
+            color: #5f705e;
+            font-size: 12px;
+            line-height: 2;
+        }
+
+        .equipment-note i {
+            margin-top: 4px;
+            color: #579366;
+            font-size: 18px;
+        }
+
+        .equipment-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 16px;
+            padding: 14px;
+            border: 1px solid #e1eee0;
+            border-radius: 13px;
+            color: var(--forest);
+            background: #fbfcf7;
+            font-size: 12px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .equipment-link:hover {
+            color: #147b6e;
+            background: #eaf8f0;
+        }
+
+        /* System alerts */
+        .system-list { display: grid; gap: 10px; }
+
+        .system-message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            border: 1px solid #e6eee3;
+            border-radius: 13px;
+            background: #f9fbf5;
+        }
+
+        .system-message-icon {
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            width: 37px;
+            height: 37px;
+            border-radius: 12px;
+            color: #347b4d;
+            background: #e3f4df;
+        }
+
+        .system-message.warning {
+            border-color: #f3dfc5;
+            background: #fff9ee;
+        }
+
+        .system-message.warning .system-message-icon {
+            color: #b47a25;
+            background: #ffedcd;
+        }
+
+        .system-message.danger {
+            border-color: #f4d8d3;
+            background: #fff4f0;
+        }
+
+        .system-message.danger .system-message-icon {
+            color: #bd5448;
+            background: #ffe1d8;
+        }
+
+        .system-message strong {
+            display: block;
+            color: #344a3a;
+            font-size: 12px;
+        }
+
+        .system-message small {
+            display: block;
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .footer-note {
+            padding: 22px 0 5px;
+            text-align: center;
+            color: #8b978b;
+            font-size: 10px;
+        }
+
+        @media (max-width: 1250px) {
+            .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .zone-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .sensor-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 850px) {
+            .sidebar { transform: translateX(100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-right: 0; }
+            .mobile-menu { display: block; }
+            .topbar { padding: 12px 18px; }
+            .content { padding: 19px; }
+            .two-columns { grid-template-columns: 1fr; }
+            .hero { min-height: 285px; }
+            .hero-content { padding: 28px; }
+        }
+
+        @media (max-width: 560px) {
+            .topbar { min-height: 68px; padding: 10px 13px; }
+            .page-title h1 { font-size: 15px; }
+            .page-title p { font-size: 10px; }
+            .user-box span { display: none; }
+            .content { padding: 13px; }
+            .kpi-grid, .zone-grid, .sensor-grid { grid-template-columns: 1fr; gap: 12px; }
+            .kpi { min-height: 95px; padding: 17px; }
+            .hero {
+                min-height: 0;
+                aspect-ratio: auto;
+                height: 310px;
+                border-radius: 18px;
+            }
+            .hero-content { padding: 22px; }
+            .hero-content h2 { font-size: 23px; }
+            .hero-content p { font-size: 12px; }
+            .hero-points { gap: 10px; font-size: 10px; }
+            .panel { padding: 17px; }
+            .chart-box { height: 250px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                transition-duration: .01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar" id="sidebar">
+    <div class="brand">
+        <div class="brand-icon"><i class="fas fa-leaf"></i></div>
+        <h2>گلخانه هوشمند</h2>
+        <span>SMART GREENHOUSE</span>
+    </div>
+
+    <nav class="menu">
+        <div class="menu-title">مدیریت</div>
+
+        <a href="{% url 'greenhouse:dashboard' %}" class="menu-item active">
+            <i class="fas fa-chart-pie"></i><span>داشبورد اصلی</span>
+        </a>
+
+        <a href="{% url 'greenhouse:greenhouses' %}" class="menu-item">
+            <i class="fas fa-warehouse"></i><span>گلخانه‌ها</span>
+        </a>
+
+        <a href="{% url 'greenhouse:zones' %}" class="menu-item">
+            <i class="fas fa-layer-group"></i><span>زون‌ها و سالن‌ها</span>
+        </a>
+
+        <div class="menu-title">پایش و کنترل</div>
+
+        <a href="{% url 'monitoring:sensors' %}" class="menu-item">
+            <i class="fas fa-microchip"></i><span>سنسورها</span>
+        </a>
+
+        <a href="/admin/automation/actuator/" class="menu-item">
+            <i class="fas fa-fan"></i><span>تجهیزات کنترلی</span>
+        </a>
+
+        <a href="/admin/automation/automationrule/" class="menu-item">
+            <i class="fas fa-robot"></i><span>قوانین اتوماسیون</span>
+        </a>
+
+        <div class="menu-title">سیستم</div>
+
+        <a href="/admin/" class="menu-item">
+            <i class="fas fa-sliders"></i><span>مدیریت سیستم</span>
+        </a>
+    </nav>
+</aside>
+
+<main class="main">
+    <header class="topbar">
+        <div class="topbar-start">
+            <button class="mobile-menu" type="button" onclick="toggleSidebar()" aria-label="باز کردن منو">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="page-title">
+                <h1>داشبورد گلخانه هوشمند</h1>
+                <p>مرکز پایش محیط، سنسورها و زون‌ها</p>
+            </div>
+        </div>
+
+        <div class="top-actions">
+            <div class="user-box">
+                <div class="user-avatar"><i class="fas fa-user-tie"></i></div>
+                <span>مدیر سیستم</span>
+            </div>
+        </div>
+    </header>
+
+    <section class="content">
+
+        <!-- بنر ثابت اختصاصی -->
+        <section class="hero" aria-label="گلخانه هوشمند">
+            <img
+                class="hero-image"
+                src="{% static 'greenhouse/images/slide1.jpg' %}"
+                alt="نمای گلخانه هوشمند"
+                fetchpriority="high"
+            >
+
+            <div class="hero-content">
+                <span class="hero-tag">
+                    <i class="fas fa-seedling"></i>
+                    سامانه مدیریت گلخانه
+                </span>
+
+                <h2>گلخانه‌ای هوشمندتر، محصولی پربازده‌تر</h2>
+
+                <p>
+                    شرایط محیطی و وضعیت سنسورها را دنبال کنید؛
+                    اطلاعات هر سالن را یک‌جا ببینید و تصمیم‌های دقیق‌تری بگیرید.
+                </p>
+
+                <div class="hero-points">
+                    <span><i class="fas fa-leaf"></i> کشاورزی دقیق</span>
+                    <span><i class="fas fa-chart-line"></i> پایش داده‌محور</span>
+                    <span><i class="fas fa-seedling"></i> مدیریت زون‌ها</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- آمار کلی -->
+        <div class="kpi-grid">
+            <div class="kpi kpi-green">
+                <div class="kpi-icon"><i class="fas fa-warehouse"></i></div>
+                <div>
+                    <span class="kpi-label">گلخانه‌های فعال</span>
+                    <strong class="kpi-value">{{ greenhouse_count|default:0 }}</strong>
+                </div>
+            </div>
+
+            <div class="kpi kpi-teal">
+                <div class="kpi-icon"><i class="fas fa-layer-group"></i></div>
+                <div>
+                    <span class="kpi-label">زون‌های فعال</span>
+                    <strong class="kpi-value">{{ zone_count|default:0 }}</strong>
+                </div>
+            </div>
+
+            <div class="kpi kpi-green">
+                <div class="kpi-icon"><i class="fas fa-satellite-dish"></i></div>
+                <div>
+                    <span class="kpi-label">سنسورهای آنلاین</span>
+                    <strong class="kpi-value">{{ online_sensors|default:0 }}</strong>
+                </div>
+            </div>
+
+            <div class="kpi kpi-coral">
+                <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                <div>
+                    <span class="kpi-label">سنسورهای آفلاین</span>
+                    <strong class="kpi-value">{{ offline_sensors|default:0 }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- زون‌ها -->
+        <div class="section-heading">
+            <div class="heading-text">
+                <div class="heading-icon"><i class="fas fa-seedling"></i></div>
+                <div>
+                    <h2>نمای کلی زون‌ها</h2>
+                    <p>تعداد سنسورها و وضعیت هر سالن</p>
+                </div>
+            </div>
+            <a class="text-link" href="{% url 'greenhouse:zones' %}">
+                مشاهده همه زون‌ها <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+
+        <div class="zone-grid">
+            {% for zone in zones %}
+            <article class="zone-card">
+                <div class="zone-top">
+                    <div>
+                        <h3 class="zone-title">{{ zone.name }}</h3>
+                        <div class="zone-greenhouse">
+                            <i class="fas fa-warehouse"></i>
+                            {{ zone.greenhouse.name }}
+                        </div>
+                    </div>
+                    <span class="zone-code">{{ zone.code }}</span>
+                </div>
+
+                <div class="zone-total">
+                    <span>سنسورهای فعال ثبت‌شده</span>
+                    <strong>{{ zone.sensor_count|default:0 }}</strong>
+                </div>
+
+                <div class="zone-statuses">
+                    <div class="zone-status zone-online">
+                        <span>آنلاین</span>
+                        <strong>{{ zone.online_count|default:0 }}</strong>
+                    </div>
+                    <div class="zone-status zone-offline">
+                        <span>آفلاین</span>
+                        <strong>{{ zone.offline_count|default:0 }}</strong>
+                    </div>
+                    <div class="zone-status zone-error">
+                        <span>خطادار</span>
+                        <strong>{{ zone.error_count|default:0 }}</strong>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-seedling"></i>
+                هنوز زونی برای نمایش ثبت نشده است.
+                <div class="mt-2">
+                    <a href="{% url 'greenhouse:zones' %}" class="text-link">رفتن به بخش زون‌ها</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- سنسورها -->
+        <div class="section-heading">
+            <div class="heading-text">
+                <div class="heading-icon"><i class="fas fa-gauge-high"></i></div>
+                <div>
+                    <h2>وضعیت لحظه‌ای سنسورها</h2>
+                    <p>مقادیر آخرین داده‌های دریافتی از API</p>
+                </div>
+            </div>
+            <a class="text-link" href="{% url 'monitoring:sensors' %}">
+                فهرست سنسورها <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+
+        <div class="sensor-grid" id="sensorGrid">
+            <article class="sensor-card" style="--sensor-color:#d66d39;--sensor-tint:#fff0df">
+                <div class="sensor-card-top">
+                    <div class="sensor-icon"><i class="fas fa-temperature-half"></i></div>
+                    <span id="tempStatus" class="sensor-status status-offline">در انتظار داده</span>
+                </div>
+                <div class="sensor-name">دمای سالن</div>
+                <div class="sensor-value"><span id="tempValue">--</span><span class="sensor-unit">°C</span></div>
+            </article>
+
+            <article class="sensor-card" style="--sensor-color:#278eae;--sensor-tint:#e2f5fb">
+                <div class="sensor-card-top">
+                    <div class="sensor-icon"><i class="fas fa-droplet"></i></div>
+                    <span id="humidityStatus" class="sensor-status status-offline">در انتظار داده</span>
+                </div>
+                <div class="sensor-name">رطوبت هوا</div>
+                <div class="sensor-value"><span id="humidityValue">--</span><span class="sensor-unit">%</span></div>
+            </article>
+
+            <article class="sensor-card" style="--sensor-color:#4b9851;--sensor-tint:#e8f5dc">
+                <div class="sensor-card-top">
+                    <div class="sensor-icon"><i class="fas fa-seedling"></i></div>
+                    <span id="soilStatus" class="sensor-status status-offline">در انتظار داده</span>
+                </div>
+                <div class="sensor-name">رطوبت خاک</div>
+                <div class="sensor-value"><span id="soilValue">--</span><span class="sensor-unit">%</span></div>
+            </article>
+
+            <article class="sensor-card" style="--sensor-color:#8a69bd;--sensor-tint:#f0e9fc">
+                <div class="sensor-card-top">
+                    <div class="sensor-icon"><i class="fas fa-flask"></i></div>
+                    <span id="ecStatus" class="sensor-status status-offline">در انتظار داده</span>
+                </div>
+                <div class="sensor-name">هدایت الکتریکی (EC)</div>
+                <div class="sensor-value"><span id="ecValue">--</span><span class="sensor-unit">mS/cm</span></div>
+            </article>
+
+            <article class="sensor-card" style="--sensor-color:#c27c32;--sensor-tint:#fff2df">
+                <div class="sensor-card-top">
+                    <div class="sensor-icon"><i class="fas fa-vial"></i></div>
+                    <span id="phStatus" class="sensor-status status-offline">در انتظار داده</span>
+                </div>
+                <div class="sensor-name">اسیدیته آب (pH)</div>
+                <div class="sensor-value"><span id="phValue">--</span><span class="sensor-unit">pH</span></div>
+            </article>
+
+            <article class="sensor-card" style="--sensor-color:#557eae;--sensor-tint:#e8f0fc">
+                <div class="sensor-card-top">
+                    <div class="sensor-icon"><i class="fas fa-wind"></i></div>
+                    <span id="co2Status" class="sensor-status status-offline">در انتظار داده</span>
+                </div>
+                <div class="sensor-name">دی‌اکسید کربن</div>
+                <div class="sensor-value"><span id="co2Value">--</span><span class="sensor-unit">ppm</span></div>
+            </article>
+        </div>
+
+        <!-- نمودار و تجهیزات -->
+        <div class="two-columns">
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>روند تغییرات دما</h3>
+                        <p>تاریخچه داده‌های سنسور TEMP-Z1-01</p>
+                    </div>
+                    <span class="period-label"><i class="far fa-clock"></i> ۶ ساعت اخیر</span>
+                </div>
+
+                <div class="chart-box">
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+                <p id="chartMessage" class="text-muted small mt-3 mb-0"></p>
+            </section>
+
+            <section class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>تجهیزات کنترلی</h3>
+                        <p>دسترسی به مدیریت عملگرها</p>
+                    </div>
+                    <span class="period-label"><i class="fas fa-sliders"></i> مدیریت</span>
+                </div>
+
+                <div class="equipment-note">
+                    <i class="fas fa-circle-info"></i>
+                    <div>
+                        وضعیت روشن یا خاموش تجهیزات باید از داده واقعی عملگرها خوانده شود.
+                        برای جلوگیری از نمایش اطلاعات ساختگی، وضعیت نمونه‌ای در این داشبورد نمایش داده نمی‌شود.
+                    </div>
+                </div>
+
+                <a href="/admin/automation/actuator/" class="equipment-link">
+                    <span><i class="fas fa-fan ms-2"></i>مدیریت تجهیزات کنترلی</span>
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+
+                <a href="/admin/automation/automationrule/" class="equipment-link">
+                    <span><i class="fas fa-robot ms-2"></i>قوانین اتوماسیون</span>
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </section>
+        </div>
+
+        <!-- هشدارهای واقعی بر اساس آمار موجود -->
+        <div class="section-heading">
+            <div class="heading-text">
+                <div class="heading-icon"><i class="fas fa-bell"></i></div>
+                <div>
+                    <h2>وضعیت سیستم</h2>
+                    <p>خلاصه‌ای از وضعیت سنسورهای ثبت‌شده</p>
+                </div>
+            </div>
+        </div>
+
+        <section class="panel">
+            <div class="system-list">
+                {% if offline_sensors|default:0 > 0 %}
+                <div class="system-message danger">
+                    <div class="system-message-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div>
+                        <strong>سنسورهای آفلاین</strong>
+                        <small>{{ offline_sensors }} سنسور آفلاین ثبت شده است؛ اتصال و آخرین داده‌ها را بررسی کنید.</small>
+                    </div>
+                </div>
+                {% else %}
+                <div class="system-message">
+                    <div class="system-message-icon"><i class="fas fa-check"></i></div>
+                    <div>
+                        <strong>سنسور آفلاین ثبت نشده است</strong>
+                        <small>این وضعیت بر اساس فیلد status در دیتابیس است و به‌تنهایی سلامت کل سامانه را تأیید نمی‌کند.</small>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if error_sensors|default:0 > 0 %}
+                <div class="system-message warning">
+                    <div class="system-message-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                    <div>
+                        <strong>سنسورهای دارای خطا</strong>
+                        <small>{{ error_sensors }} سنسور با وضعیت خطا ثبت شده است.</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <div class="footer-note">
+            سامانه پایش گلخانه هوشمند · داده‌ها از سرویس پروژه دریافت می‌شوند
+        </div>
+
+    </section>
+</main>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("open");
+    }
+
+    const sensorMap = [
+        { key: "TEMP", valueId: "tempValue", statusId: "tempStatus" },
+        { key: "HUM", valueId: "humidityValue", statusId: "humidityStatus" },
+        { key: "SOIL", valueId: "soilValue", statusId: "soilStatus" },
+        { key: "EC", valueId: "ecValue", statusId: "ecStatus" },
+        { key: "PH", valueId: "phValue", statusId: "phStatus" },
+        { key: "CO2", valueId: "co2Value", statusId: "co2Status" }
+    ];
+
+    function setSensorStatus(element, status) {
+        if (!element) return;
+
+        const labels = {
+            online: "آنلاین",
+            offline: "آفلاین",
+            error: "خطا"
+        };
+
+        element.textContent = labels[status] || "نامشخص";
+        element.className = "sensor-status " +
+            (status === "online" ? "status-online" :
+             status === "error" ? "status-error" : "status-offline");
+    }
+
+    async function loadSensors() {
+        try {
+            const response = await fetch("/api/monitoring/latest/", {
+                headers: { "Accept": "application/json" }
+            });
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            const data = await response.json();
+            if (!Array.isArray(data.sensors)) {
+                throw new Error("ساختار پاسخ API معتبر نیست");
+            }
+
+            sensorMap.forEach(item => {
+                const valueElement = document.getElementById(item.valueId);
+                const statusElement = document.getElementById(item.statusId);
+
+                if (valueElement) valueElement.textContent = "--";
+                if (statusElement) {
+                    statusElement.textContent = "داده‌ای دریافت نشد";
+                    statusElement.className = "sensor-status status-offline";
+                }
+            });
+
+            data.sensors.forEach(sensor => {
+                const code = String(sensor.code || "").toUpperCase();
+
+                // کدهای PH و EC را قبل از بررسی عبارت‌های کوتاه‌تر بررسی می‌کنیم.
+                let mapping = null;
+
+                if (code.includes("CO2")) {
+                    mapping = sensorMap.find(item => item.key === "CO2");
+                } else if (code.includes("SOIL")) {
+                    mapping = sensorMap.find(item => item.key === "SOIL");
+                } else if (code.includes("HUM")) {
+                    mapping = sensorMap.find(item => item.key === "HUM");
+                } else if (code.includes("TEMP")) {
+                    mapping = sensorMap.find(item => item.key === "TEMP");
+                } else if (code.includes("PH")) {
+                    mapping = sensorMap.find(item => item.key === "PH");
+                } else if (code.includes("EC")) {
+                    mapping = sensorMap.find(item => item.key === "EC");
+                }
+
+                if (!mapping) return;
+
+                const valueElement = document.getElementById(mapping.valueId);
+                const statusElement = document.getElementById(mapping.statusId);
+
+                if (valueElement) {
+                    const value = sensor.value;
+                    valueElement.textContent =
+                        value !== null && value !== undefined && value !== ""
+                            && Number.isFinite(Number(value))
+                            ? Number(value).toLocaleString("fa-IR", {
+                                maximumFractionDigits: 2
+                            })
+                            : "--";
+                }
+
+                setSensorStatus(statusElement, sensor.status);
+            });
+        } catch (error) {
+            console.error("Sensor API error:", error);
+        }
+    }
+
+    let temperatureChart = null;
+
+    async function loadTemperatureHistory() {
+        const canvas = document.getElementById("temperatureChart");
+        const message = document.getElementById("chartMessage");
+
+        if (!canvas || typeof Chart === "undefined") return;
+
+        try {
+            const response = await fetch(
+                "/api/monitoring/history/TEMP-Z1-01/?hours=6",
+                { headers: { "Accept": "application/json" } }
+            );
+
+            if (!response.ok) {
+                throw new Error("HTTP " + response.status);
+            }
+
+            const payload = await response.json();
+            const rows = Array.isArray(payload.data) ? payload.data : [];
+
+            const validRows = rows.filter(item =>
+                item.timestamp &&
+                item.value !== null &&
+                item.value !== "" &&
+                Number.isFinite(Number(item.value))
+            );
+
+            const labels = validRows.map(item =>
+                new Date(item.timestamp).toLocaleTimeString("fa-IR", {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                })
+            );
+
+            const values = validRows.map(item => Number(item.value));
+            const ctx = canvas.getContext("2d");
+
+            if (temperatureChart) temperatureChart.destroy();
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, "rgba(61, 155, 103, .28)");
+            gradient.addColorStop(1, "rgba(61, 155, 103, .015)");
+
+            temperatureChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "دمای سالن (°C)",
+                        data: values,
+                        borderColor: "#27956f",
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        tension: .35,
+                        fill: true,
+                        pointRadius: values.length > 25 ? 0 : 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: "#ffffff",
+                        pointBorderColor: "#27956f",
+                        pointBorderWidth: 2,
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: "index" },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: "top",
+                            align: "end",
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: "circle",
+                                boxWidth: 8,
+                                color: "#66776a",
+                                font: { family: "Vazirmatn", size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            rtl: true,
+                            backgroundColor: "#204b37",
+                            padding: 12,
+                            displayColors: false,
+                            titleFont: { family: "Vazirmatn" },
+                            bodyFont: { family: "Vazirmatn" },
+                            callbacks: {
+                                label: context => ` دما: ${context.parsed.y} °C`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: "#78877e",
+                                maxTicksLimit: 6,
+                                font: { family: "Vazirmatn", size: 10 },
+                                callback: value => value + "°"
+                            },
+                            grid: { color: "rgba(91,119,104,.12)" },
+                            border: { display: false },
+                            suggestedMin: values.length
+                                ? Math.floor(Math.min(...values) - 2) : 15,
+                            suggestedMax: values.length
+                                ? Math.ceil(Math.max(...values) + 2) : 35
+                        },
+                        x: {
+                            ticks: {
+                                color: "#78877e",
+                                maxTicksLimit: 8,
+                                maxRotation: 0,
+                                autoSkip: true,
+                                font: { family: "Vazirmatn", size: 10 }
+                            },
+                            grid: { display: false },
+                            border: { display: false }
+                        }
+                    }
+                }
+            });
+
+            if (message) {
+                message.textContent = validRows.length
+                    ? "تعداد نقاط نمایش‌داده‌شده: " + validRows.length
+                    : "برای این سنسور در بازه انتخاب‌شده داده‌ای وجود ندارد.";
+            }
+        } catch (error) {
+            console.error("Temperature history API error:", error);
+            if (message) {
+                message.textContent = "دریافت تاریخچه دما ناموفق بود؛ کنسول مرورگر و API را بررسی کنید.";
+            }
+        }
+    }
+
+    loadSensors();
+    loadTemperatureHistory();
+
+    setInterval(loadSensors, 5000);
+    setInterval(loadTemperatureHistory, 30000);
+</script>
+
+</body>
+</html>
